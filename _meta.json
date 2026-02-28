@@ -1,0 +1,24 @@
+{
+  "name": "trading-agents",
+  "version": "1.0.0",
+  "description": "TradingAgents 多智能体交易框架集成",
+  "author": "OpenClaw Community",
+  "license": "MIT",
+  "tags": ["trading", "finance", "multi-agent", "llm", "quant"],
+  "category": "finance",
+  "dependencies": [
+    "langgraph>=0.2.0",
+    "langchain>=0.3.0",
+    "openai>=1.0.0",
+    "yfinance>=0.2.40"
+  ],
+  "env_vars": [
+    "OPENAI_API_KEY",
+    "GOOGLE_API_KEY",
+    "ANTHROPIC_API_KEY",
+    "XAI_API_KEY",
+    "ALPHA_VANTAGE_API_KEY"
+  ],
+  "created_at": "2026-02-28",
+  "updated_at": "2026-02-28"
+}
