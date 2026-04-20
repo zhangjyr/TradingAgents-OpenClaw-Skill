@@ -15,8 +15,6 @@ read_when:
 ### Slash Command
 - 可通过 `/trading_agents` 直接触发
 - slash command 统一走 `handle_trading_agents_command(...)` 语义
-- handler 会强制注入验收字段：
-  - `"invoked_skill": "trading-agents"`
 - 示例：
   - `/trading_agents NVDA`
   - `/trading_agents AAPL --mode quick`
