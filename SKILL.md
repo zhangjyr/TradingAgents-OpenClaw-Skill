@@ -2,6 +2,9 @@
 name: trading-agents
 description: 当用户需要使用多智能体交易框架分析股票、获取交易信号或进行量化投资决策时使用。基于 TradingAgents 项目，提供专业的基本面分析、情绪分析、技术分析和风险管理。
 user-invocable: true
+command-dispatch: tool
+command-tool: exec
+command-template: python "{skill_dir}" {args}
 read_when:
   - 用户要求分析股票或获取交易信号
   - 用户提到 trading-agents / TradingAgents
@@ -14,8 +17,10 @@ read_when:
 
 ### Slash Command
 - 可通过 `/trading_agents` 直接触发
-- slash command 统一走 `handle_trading_agents_command(...)` 语义
-- 示例：
+- slash command 通过 OpenClaw `exec` tool 执行：
+  - `python "{skill_dir}" {args}`
+- skill 目录支持 `python <skill_dir>`，由 `__main__.py` 作为入口
+- 1w示例：
   - `/trading_agents NVDA`
   - `/trading_agents AAPL --mode quick`
   - `/trading_agents CRM --mode quick --provider codex --language 中文`

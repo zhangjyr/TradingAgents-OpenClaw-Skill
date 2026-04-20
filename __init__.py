@@ -553,10 +553,9 @@ def deep_analyze(
     return skill.deep_analysis(ticker, date, debate_rounds, language=language, debug=debug)
 
 
-# CLI 入口
-if __name__ == "__main__":
+def main(argv: Optional[list[str]] = None) -> int:
     parser = _build_command_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     command_tokens = [args.ticker]
     if args.date:
         command_tokens.extend(["--date", args.date])
@@ -580,3 +579,9 @@ if __name__ == "__main__":
         print(f"结果已保存到：{args.output}")
     else:
         print(json.dumps(result, indent=2, ensure_ascii=False))
+    return 0
+
+
+# CLI 入口
+if __name__ == "__main__":
+    raise SystemExit(main())
