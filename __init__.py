@@ -13,6 +13,7 @@ Usage:
 
 import json
 import os
+import shlex
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -89,6 +90,80 @@ def _resolve_provider_default_models(provider: Optional[str]) -> Dict[str, str]:
         "deep": deep_model or fallback["deep"],
         "quick": quick_model or fallback["quick"],
     }
+
+
+def _with_invoked_skill(result: Dict[str, Any], invoked_skill: str) -> Dict[str, Any]:
+    merged = dict(result)
+    merged["invoked_skill"] = invoked_skill
+    return merged
+
+
+def _build_command_parser():
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="TradingAgents OpenClaw Skill",
+        exit_on_error=False,
+    )
+    parser.add_argument("ticker", help="股票代码（如 NVDA, AAPL）")
+    parser.add_argument("--date", "-d", help="分析日期（YYYY-MM-DD）", default=None)
+    parser.add_argument("--mode", "-m", choices=["quick", "normal", "deep"], default="normal", help="分析模式")
+    parser.add_argument("--debate-rounds", "-r", type=int, default=None, help="辩论轮数")
+    parser.add_argument("--provider", "-p", help="LLM 提供商", default="codex")
+    parser.add_argument("--language", "-l", help="输出语言", default="中文")
+    parser.add_argument("--debug", action="store_true", help="输出底层调试信息")
+    parser.add_argument("--output", "-o", help="输出文件路径", default=None)
+    return parser
+
+
+def handle_trading_agents_command(
+    command_args: str,
+    *,
+    debug: bool = False,
+    invoked_skill: str = "trading-agents",
+) -> Dict[str, Any]:
+    parser = _build_command_parser()
+    try:
+        args = parser.parse_args(shlex.split(command_args))
+    except Exception as error:
+        return _with_invoked_skill(
+            {
+                "error": str(error),
+                "action": "ERROR",
+            },
+            invoked_skill,
+        )
+
+    initial_config = {"output_language": args.language}
+    if args.provider:
+        initial_config["llm_provider"] = args.provider
+    skill = TradingAgentsSkill(config=initial_config, debug=args.debug or debug)
+
+    if args.mode == "quick":
+        result = skill.quick_analysis(
+            args.ticker,
+            args.date,
+            language=args.language,
+            debug=args.debug or debug,
+        )
+    elif args.mode == "deep":
+        rounds = args.debate_rounds or 3
+        result = skill.deep_analysis(
+            args.ticker,
+            args.date,
+            rounds,
+            language=args.language,
+            debug=args.debug or debug,
+        )
+    else:
+        kwargs = {}
+        if args.debate_rounds:
+            kwargs["max_debate_rounds"] = args.debate_rounds
+        kwargs["language"] = args.language
+        kwargs["debug"] = args.debug or debug
+        result = skill.analyze_stock(args.ticker, args.date, **kwargs)
+
+    return _with_invoked_skill(result, invoked_skill)
 
 
 class TradingAgentsSkill:
@@ -480,47 +555,23 @@ def deep_analyze(
 
 # CLI 入口
 if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="TradingAgents OpenClaw Skill")
-    parser.add_argument("ticker", help="股票代码（如 NVDA, AAPL）")
-    parser.add_argument("--date", "-d", help="分析日期（YYYY-MM-DD）", default=None)
-    parser.add_argument("--mode", "-m", choices=["quick", "normal", "deep"], default="normal",
-                       help="分析模式")
-    parser.add_argument("--debate-rounds", "-r", type=int, default=None,
-                       help="辩论轮数")
-    parser.add_argument("--provider", "-p", help="LLM 提供商", default="codex")
-    parser.add_argument("--language", "-l", help="输出语言", default="中文")
-    parser.add_argument("--debug", action="store_true", help="输出底层调试信息")
-    parser.add_argument("--output", "-o", help="输出文件路径", default=None)
-    
+    parser = _build_command_parser()
     args = parser.parse_args()
-    
-    # 创建技能实例
-    initial_config = {"output_language": args.language}
+    command_tokens = [args.ticker]
+    if args.date:
+        command_tokens.extend(["--date", args.date])
+    if args.mode:
+        command_tokens.extend(["--mode", args.mode])
+    if args.debate_rounds is not None:
+        command_tokens.extend(["--debate-rounds", str(args.debate_rounds)])
     if args.provider:
-        initial_config["llm_provider"] = args.provider
-    skill = TradingAgentsSkill(config=initial_config, debug=args.debug)
-    
-    # 根据模式执行分析
-    if args.mode == "quick":
-        result = skill.quick_analysis(args.ticker, args.date, language=args.language, debug=args.debug)
-    elif args.mode == "deep":
-        rounds = args.debate_rounds or 3
-        result = skill.deep_analysis(
-            args.ticker,
-            args.date,
-            rounds,
-            language=args.language,
-            debug=args.debug,
-        )
-    else:
-        kwargs = {}
-        if args.debate_rounds:
-            kwargs["max_debate_rounds"] = args.debate_rounds
-        kwargs["language"] = args.language
-        kwargs["debug"] = args.debug
-        result = skill.analyze_stock(args.ticker, args.date, **kwargs)
+        command_tokens.extend(["--provider", args.provider])
+    if args.language:
+        command_tokens.extend(["--language", args.language])
+    if args.debug:
+        command_tokens.append("--debug")
+
+    result = handle_trading_agents_command(" ".join(shlex.quote(token) for token in command_tokens))
     
     # 输出结果
     if args.output:

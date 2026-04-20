@@ -122,9 +122,40 @@ def test_string_decision_normalization():
         return False
 
 
+def test_slash_command_handler_marker():
+    """测试 slash command handler 注入 invoked_skill"""
+    print("\n测试 8: 测试 slash command handler 标记...")
+    try:
+        import __init__ as skill_module
+
+        original_quick_analysis = skill_module.TradingAgentsSkill.quick_analysis
+
+        def fake_quick_analysis(self, ticker, date=None, language=None, debug=False):
+            return {
+                "ticker": ticker,
+                "date": date or "2026-04-18",
+                "action": "BUY",
+                "reasoning": "mocked quick analysis",
+            }
+
+        skill_module.TradingAgentsSkill.quick_analysis = fake_quick_analysis
+        try:
+            result = skill_module.handle_trading_agents_command(
+                "CRM --mode quick --provider codex --language 中文"
+            )
+        finally:
+            skill_module.TradingAgentsSkill.quick_analysis = original_quick_analysis
+
+        print(f"✓ handler invoked_skill：{result.get('invoked_skill')}")
+        return result.get("invoked_skill") == "trading-agents" and result.get("ticker") == "CRM"
+    except Exception as e:
+        print(f"✗ slash command handler 测试失败：{e}")
+        return False
+
+
 def test_quick_analysis(skill):
     """测试快速分析（不实际调用 API）"""
-    print("\n测试 8: 测试分析接口...")
+    print("\n测试 9: 测试分析接口...")
     try:
         # 注意：这个测试会实际调用 API，需要有效的 API key
         print("⚠  此测试会调用实际 API，需要有效的 API key")
@@ -183,7 +214,12 @@ def main():
         print("\n❌ 测试失败：字符串决策兼容测试失败")
         return False
 
-    # 测试 8: 分析
+    # 测试 8: slash command handler
+    if not test_slash_command_handler_marker():
+        print("\n❌ 测试失败：slash command handler 测试失败")
+        return False
+
+    # 测试 9: 分析
     if not test_quick_analysis(skill):
         print("\n⚠  分析测试跳过或失败")
     
