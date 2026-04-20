@@ -1,6 +1,7 @@
 ---
 name: trading-agents
 description: 当用户需要使用多智能体交易框架分析股票、获取交易信号或进行量化投资决策时使用。基于 TradingAgents 项目，提供专业的基本面分析、情绪分析、技术分析和风险管理。
+user-invocable: true
 read_when:
   - 用户要求分析股票或获取交易信号
   - 用户提到 trading-agents / TradingAgents
@@ -9,6 +10,14 @@ read_when:
 # TradingAgents 多智能体交易框架
 
 ## 1. 什么时候用我？
+
+### Slash Command
+- 可通过 `/trading_agents` 直接触发
+- 示例：
+  - `/trading_agents NVDA`
+  - `/trading_agents AAPL --mode quick`
+  - `/trading_agents CRM --mode quick --provider codex --language 中文`
+  - `/trading_agents TSLA --mode deep --provider claude_code`
 
 当用户说：
 - "分析 NVDA 股票"
