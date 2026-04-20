@@ -43,11 +43,37 @@ try:
     llm_provider = config.get('llm_provider', 'unknown')
     deep_model = config.get('deep_think_llm', 'unknown')
     quick_model = config.get('quick_think_llm', 'unknown')
+    output_language = config.get('output_language', 'unknown')
     print(f"    [OK] LLM 提供商：{llm_provider}")
     print(f"    [OK] 深度思考模型：{deep_model}")
     print(f"    [OK] 快速思考模型：{quick_model}")
+    print(f"    [OK] 输出语言：{output_language}")
 except Exception as e:
     print(f"    [FAIL] 配置加载失败：{e}")
+    sys.exit(1)
+
+print("\n[3.5/4] 测试 Codex / Claude Code 切换...")
+try:
+    skill.set_config("llm_provider", "codex")
+    codex_config = skill.get_config()
+    print(f"    [OK] Codex 深度模型：{codex_config.get('deep_think_llm', 'unknown')}")
+    print(f"    [OK] Codex 快速模型：{codex_config.get('quick_think_llm', 'unknown')}")
+
+    skill.set_config("llm_provider", "claude_code")
+    claude_config = skill.get_config()
+    print(f"    [OK] Claude Code 深度模型：{claude_config.get('deep_think_llm', 'unknown')}")
+    print(f"    [OK] Claude Code 快速模型：{claude_config.get('quick_think_llm', 'unknown')}")
+except Exception as e:
+    print(f"    [FAIL] 提供商切换失败：{e}")
+    sys.exit(1)
+
+print("\n[3.6/4] 测试中文输出配置...")
+try:
+    skill.set_config("output_language", "中文")
+    language_config = skill.get_config()
+    print(f"    [OK] 输出语言：{language_config.get('output_language', 'unknown')}")
+except Exception as e:
+    print(f"    [FAIL] 输出语言配置失败：{e}")
     sys.exit(1)
 
 # 测试 4: 接口可用性
@@ -73,5 +99,5 @@ print("  from skills.trading_agents import TradingAgentsSkill")
 print("  skill = TradingAgentsSkill()")
 print("  result = skill.analyze_stock('NVDA', '2024-05-10')")
 print("  print(result)")
-print("\n注意：实际分析需要配置有效的 LLM API Key")
-print("在 .env 文件中添加：OPENAI_API_KEY=sk-...")
+print("\n注意：实际分析需要配置有效的 LLM 凭证")
+print("OpenAI / Google / Anthropic 可走环境变量；Codex / Claude Code 需要本地登录态")

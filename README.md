@@ -17,13 +17,19 @@ pip install -r requirements.txt
 
 ```bash
 # 选择一个 LLM 提供商
-OPENAI_API_KEY=sk-...          # OpenAI (推荐)
+OPENAI_API_KEY=sk-...          # OpenAI
 # 或
 GOOGLE_API_KEY=...             # Google
 # 或
 ANTHROPIC_API_KEY=...          # Anthropic
 # 或
 XAI_API_KEY=...                # xAI
+
+# Codex 走本地登录态
+# 先运行 codex login，并确保 ~/.codex/auth.json 可用
+
+# Claude Code 走本地登录态
+# 先完成 Claude Code 登录，并确保 ~/.claude/.credentials.json 可用
 
 # 可选：数据提供商（默认使用 yfinance，无需 API key）
 ALPHA_VANTAGE_API_KEY=...
@@ -56,11 +62,17 @@ from trading_agents import analyze, quick_analyze, deep_analyze
 # 标准分析
 result = analyze("AAPL")
 
+# analyze 默认中文输出
+result = analyze("CRM")
+
 # 快速分析（1 轮辩论）
 result = quick_analyze("MSFT")
 
 # 深度分析（3 轮辩论）
 result = deep_analyze("TSLA", debate_rounds=3)
+
+# 指定中文输出
+result = quick_analyze("CRM", language="中文")
 ```
 
 ### 命令行使用
@@ -101,6 +113,8 @@ TradingAgents 模拟真实交易公司的团队决策流程：
 ### 支持的 LLM 提供商
 
 - ✅ OpenAI (GPT-5.x, GPT-4.x)
+- ✅ Codex (GPT-5.x Codex, GPT-5.x)
+- ✅ Claude Code (Claude 4.6, 4.5)
 - ✅ Google (Gemini 3.x, 2.x)
 - ✅ Anthropic (Claude 4.x, 3.x)
 - ✅ xAI (Grok 4.x)
@@ -143,13 +157,24 @@ TradingAgents 模拟真实交易公司的团队决策流程：
 
 ```python
 config = {
-    "llm_provider": "openai",
-    "deep_think_llm": "gpt-5.2",      # 复杂推理模型
-    "quick_think_llm": "gpt-5-mini",  # 快速任务模型
+    "llm_provider": "codex",
+    "deep_think_llm": "gpt-5.4",      # 复杂推理模型
+    "quick_think_llm": "gpt-5.4-mini",# 快速任务模型
+    "output_language": "中文",
     "max_debate_rounds": 2,           # 辩论轮数
 }
 
 skill = TradingAgentsSkill(config=config)
+```
+
+```python
+claude_code_config = {
+    "llm_provider": "claude_code",
+    "deep_think_llm": "claude-opus-4-6",
+    "quick_think_llm": "claude-sonnet-4-6",
+}
+
+skill = TradingAgentsSkill(config=claude_code_config)
 ```
 
 ### 自定义数据源
@@ -174,7 +199,8 @@ skill = TradingAgentsSkill()
 
 # 修改配置
 skill.set_config("max_debate_rounds", 3)
-skill.set_config("llm_provider", "anthropic")
+skill.set_config("llm_provider", "codex")
+skill.set_config("output_language", "中文")
 
 # 获取当前配置
 current = skill.get_config()

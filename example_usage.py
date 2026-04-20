@@ -84,9 +84,9 @@ def example_custom_config():
     
     # 自定义配置
     config = {
-        "llm_provider": "openai",
-        "deep_think_llm": "gpt-5.2",
-        "quick_think_llm": "gpt-5-mini",
+        "llm_provider": "codex",
+        "deep_think_llm": "gpt-5.4",
+        "quick_think_llm": "gpt-5.4-mini",
         "max_debate_rounds": 2,
         "data_vendors": {
             "core_stock_apis": "yfinance",
@@ -103,6 +103,13 @@ def example_custom_config():
     print(f"LLM 提供商：{current_config['llm_provider']}")
     print(f"深度思考模型：{current_config['deep_think_llm']}")
     print(f"最大辩论轮数：{current_config['max_debate_rounds']}")
+    print()
+
+    skill.set_config("llm_provider", "claude_code")
+    current_config = skill.get_config()
+    print(f"切换后提供商：{current_config['llm_provider']}")
+    print(f"切换后深度模型：{current_config['deep_think_llm']}")
+    print(f"切换后快速模型：{current_config['quick_think_llm']}")
     print()
 
 

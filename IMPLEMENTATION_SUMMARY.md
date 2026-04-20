@@ -183,9 +183,9 @@ TradingAgents 模拟真实交易公司：
 ### LLM 配置
 ```python
 config = {
-    "llm_provider": "openai",
-    "deep_think_llm": "gpt-5.2",
-    "quick_think_llm": "gpt-5-mini",
+    "llm_provider": "codex",
+    "deep_think_llm": "gpt-5.4",
+    "quick_think_llm": "gpt-5.4-mini",
     "max_debate_rounds": 2,
 }
 ```

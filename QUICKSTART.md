@@ -25,6 +25,8 @@ OPENAI_API_KEY=sk-your-api-key-here
 - OpenAI: https://platform.openai.com/api-keys
 - Google: https://makersuite.google.com/app/apikey
 - Anthropic: https://console.anthropic.com/settings/keys
+- Codex: 先运行 `codex login`，确保 `~/.codex/auth.json` 可用
+- Claude Code: 先完成 Claude Code 登录，确保 `~/.claude/.credentials.json` 可用
 
 ### 步骤 3: 测试运行（2 分钟）
 
@@ -101,7 +103,7 @@ python skills/trading-agents/__init__.py MSFT --mode deep --debate-rounds 3
 
 ```python
 skill = TradingAgentsSkill()
-skill.set_config("llm_provider", "anthropic")  # 或 google, xai
+skill.set_config("llm_provider", "codex")       # 或 claude_code, anthropic, google, xai
 ```
 
 ### 调整辩论轮数
@@ -114,8 +116,15 @@ skill.set_config("max_debate_rounds", 3)
 ### 使用不同的模型
 
 ```python
-skill.set_config("deep_think_llm", "gpt-5.2")      # 强模型
-skill.set_config("quick_think_llm", "gpt-5-mini")  # 快模型
+skill.set_config("deep_think_llm", "gpt-5.4")
+skill.set_config("quick_think_llm", "gpt-5.4-mini")
+skill.set_config("output_language", "中文")
+```
+
+```python
+skill.set_config("llm_provider", "claude_code")
+skill.set_config("deep_think_llm", "claude-opus-4-6")
+skill.set_config("quick_think_llm", "claude-sonnet-4-6")
 ```
 
 ## 🐛 常见问题
@@ -146,7 +155,7 @@ OPENAI_API_KEY=sk-...  # 确保没有多余空格
 **解决方法:**
 - 使用 `quick_analyze()` 快速模式
 - 减少辩论轮数：`set_config("max_debate_rounds", 1)`
-- 使用更快的模型：`set_config("quick_think_llm", "gpt-5-mini")`
+- 使用更快的模型：`set_config("quick_think_llm", "gpt-5.4-mini")`
 
 ### Q: 结果不准确
 
