@@ -4,7 +4,7 @@ description: 当用户需要使用多智能体交易框架分析股票、获取�
 user-invocable: true
 command-dispatch: tool
 command-tool: exec
-command-template: python "{skill_dir}" {args}
+command-template: source ~/.zshrc && python "{skill_dir}" {args}
 read_when:
   - 用户要求分析股票或获取交易信号
   - 用户提到 trading-agents / TradingAgents
@@ -18,7 +18,7 @@ read_when:
 ### Slash Command
 - 可通过 `/trading_agents` 直接触发
 - slash command 通过 OpenClaw `exec` tool 执行：
-  - `python "{skill_dir}" {args}`
+  - `source ~/.zshrc && python "{skill_dir}" {args}`
 - skill 目录支持 `python <skill_dir>`，由 `__main__.py` 作为入口
 - 1w示例：
   - `/trading_agents NVDA`
